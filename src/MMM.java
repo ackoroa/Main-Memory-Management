@@ -1,4 +1,3 @@
-
 public class MMM {
 	MemoryManager MM;
 
@@ -15,7 +14,7 @@ public class MMM {
 	}
 
 	// initialize character array mm to be a single hole
-	int mm_init(int mem_size) {
+	public int mm_init(int mem_size) {
 		return MM.init(mem_size);
 	}
 
@@ -23,17 +22,19 @@ public class MMM {
 	// request a block of n consecutive words
 	// return index of first usable word (not tag) or error if insufficient
 	// memory
-	int mm_request(int n) {
-		return MM.request(n);
+	public int mm_request(int n) {
+		int index = MM.request(n+4);
+		if(index<0) return index;
+		return index + 3;
 	}
 
 	// analogous to function free()
 	// releases a previously requested block back to mm
-	int mm_release(int p) {
-		return MM.release(p);
+	public boolean mm_release(int p) {
+		return MM.release(p-3);
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return MM.toString();
 	}
 }
