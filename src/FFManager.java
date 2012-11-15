@@ -3,7 +3,7 @@ public class FFManager extends MemoryManager {
 		int p = holeHead;
 		
 		holeExamined = 0;
-
+		
 		if ((n < 2) || (p < 0))
 			return -1;
 

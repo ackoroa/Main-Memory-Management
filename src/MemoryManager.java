@@ -7,29 +7,30 @@ public abstract class MemoryManager {
 	int searchPointer, holeExamined;
 
 	abstract int request(int n);
-	
-	public double getMemoryUtil(){
+
+	public double getMemoryUtil() {
 		int p = 0;
 		double totalBlockSize = 0;
-		
-		while(p<memSize){
-			if(M[p] > 0) totalBlockSize += M[p]-2;
+
+		while (p < memSize) {
+			if (M[p] > 0)
+				totalBlockSize += M[p] - 2;
 			p = p + Math.abs(M[p]);
 		}
-		
+
 		return totalBlockSize / (double) memSize;
 	}
-	
-	public int getSearchTime(){
+
+	public int getSearchTime() {
 		return holeExamined;
 	}
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		int p = 0;
 
 		sb.append("head = " + holeHead + " tail = " + holeTail + "\n");
-		
+
 		while (p < memSize) {
 			sb.append("Pos = " + p);
 			sb.append(" Size = " + M[p]);
@@ -74,7 +75,8 @@ public abstract class MemoryManager {
 		return M[p] < 0;
 	}
 
-	protected void allocate(int requestSize, int currentBlock, boolean perfectFit) {
+	protected void allocate(int requestSize, int currentBlock,
+			boolean perfectFit) {
 		int initHoleSize = Math.abs(M[currentBlock]);
 		int newHoleSize = initHoleSize - requestSize;
 
@@ -88,6 +90,18 @@ public abstract class MemoryManager {
 			M[newBlock + newHoleSize - 1] = -newHoleSize; // endTag
 			M[newBlock + 1] = nextHole; // next pointer
 			M[newBlock + 2] = prevHole; // prev pointer
+
+			// update prev's next pointer
+			if (M[currentBlock + 2] >= 0) {
+				int prevPointer = M[currentBlock + 2];
+				M[prevPointer + 1] = newBlock;
+			}
+
+			// update next's prev pointer
+			if (M[currentBlock + 1] >= 0) {
+				int nextPointer = M[currentBlock + 1];
+				M[nextPointer + 2] = newBlock;
+			}
 
 			// update head and tail
 			if (M[newBlock + 1] == -1)
@@ -152,6 +166,13 @@ public abstract class MemoryManager {
 			bothCoalesce(p, prevP, nextP, prevTag);
 		}
 
+		if (holeHead == -1) {
+			holeHead = p;
+		}
+		if (holeTail == -1) {
+			holeTail = p;
+		}
+
 		return true;
 	}
 
@@ -161,16 +182,18 @@ public abstract class MemoryManager {
 		// remove right from linked list
 		int rightNextPointer = M[nextP + 1];
 		int rightPrevPointer = M[nextP + 2];
-		if (rightPrevPointer != -1){
+		if (rightPrevPointer >= 0) {
 			M[rightPrevPointer + 1] = rightNextPointer;
-			if(rightNextPointer == -1) holeTail = rightPrevPointer;
+			if (rightNextPointer == -1)
+				holeTail = rightPrevPointer;
 		}
-		if (rightNextPointer != -1){
+		if (rightNextPointer >= 0) {
 			M[rightNextPointer + 2] = rightPrevPointer;
-			if(rightPrevPointer == -1) holeHead = rightNextPointer;
+			if (rightPrevPointer == -1)
+				holeHead = rightNextPointer;
 		}
-		
-		leftCoalesce(nextP,prevP,M[prevP]);
+
+		leftCoalesce(nextP, prevP, M[prevP]);
 	}
 
 	private void leftCoalesce(int p, int prevP, int prevTag) {
@@ -179,10 +202,6 @@ public abstract class MemoryManager {
 
 		M[prevP] = -newHoleSize; // beginning tag
 		M[prevP + newHoleSize - 1] = -newHoleSize; // end tag
-
-		// update tail
-		if (holeTail == p)
-			holeTail = prevP;
 	}
 
 	private void rightCoalesce(int p, int nextP, int nextTag) {
@@ -202,8 +221,17 @@ public abstract class MemoryManager {
 		} else {
 			M[rightHolePrevPointer + 1] = p;
 		}
+
+		// update rightHole's next
+		int rightHoleNextPointer = M[nextP + 1];
+		if (rightHoleNextPointer < 0) {
+			holeTail = p;
+		} else {
+			M[rightHoleNextPointer + 2] = p;
+		}
+
 	}
-	
+
 	private void noCoalesce(int p) {
 		int holeSize = M[p];
 
@@ -214,7 +242,9 @@ public abstract class MemoryManager {
 		M[p + 2] = holeTail; // prev pointer
 
 		// update old tail
-		M[holeTail + 1] = p;
+		if (holeTail != -1) {
+			M[holeTail + 1] = p;
+		}
 		holeTail = p;
 	}
 }

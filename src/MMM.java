@@ -1,17 +1,20 @@
 public class MMM {
 	MemoryManager MM;
-	int nRequest;
 
 	public enum SearchStrategy {
-		FF, NF, BF, WF
+		FF, BF, WF
 	}
 
 	public MMM(SearchStrategy ss) {
-		nRequest = 0;
-		
 		switch (ss) {
 		case FF:
 			MM = new FFManager();
+			break;
+		case BF:
+			MM = new BFManager();
+			break;
+		case WF:
+			MM = new WFManager();
 			break;
 		}
 	}
@@ -26,28 +29,24 @@ public class MMM {
 	// return index of first usable word (not tag) or error if insufficient
 	// memory
 	public int request(int n) {
-		nRequest++;
-		
-		int index = MM.request(n+2);
-		if(index<0) return index;
+		int index = MM.request(n + 2);
+		if (index < 0)
+			return index;
 		return index + 1;
 	}
 
 	// analogous to function free()
 	// releases a previously requested block back to mm
 	public boolean release(int p) {
-		return MM.release(p-1);
+		return MM.release(p - 1);
 	}
-	
-	public double getMemUtil(){
+
+	public double getMemUtil() {
 		return MM.getMemoryUtil();
 	}
-	
-	public double getAvgSearchTime(){
-		double ans =  (double) MM.getSearchTime() / (double) nRequest;
-		nRequest = 0;
-		
-		return ans;
+
+	public double getLastSearchTime() {
+		return (double) MM.getSearchTime();
 	}
 
 	public String toString() {
