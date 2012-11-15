@@ -1,11 +1,14 @@
 public class MMM {
 	MemoryManager MM;
+	int nRequest;
 
 	public enum SearchStrategy {
 		FF, NF, BF, WF
 	}
 
 	public MMM(SearchStrategy ss) {
+		nRequest = 0;
+		
 		switch (ss) {
 		case FF:
 			MM = new FFManager();
@@ -14,7 +17,7 @@ public class MMM {
 	}
 
 	// initialize character array mm to be a single hole
-	public int mm_init(int mem_size) {
+	public int init(int mem_size) {
 		return MM.init(mem_size);
 	}
 
@@ -22,16 +25,29 @@ public class MMM {
 	// request a block of n consecutive words
 	// return index of first usable word (not tag) or error if insufficient
 	// memory
-	public int mm_request(int n) {
-		int index = MM.request(n+4);
+	public int request(int n) {
+		nRequest++;
+		
+		int index = MM.request(n+2);
 		if(index<0) return index;
-		return index + 3;
+		return index + 1;
 	}
 
 	// analogous to function free()
 	// releases a previously requested block back to mm
-	public boolean mm_release(int p) {
-		return MM.release(p-3);
+	public boolean release(int p) {
+		return MM.release(p-1);
+	}
+	
+	public double getMemUtil(){
+		return MM.getMemoryUtil();
+	}
+	
+	public double getAvgSearchTime(){
+		double ans =  (double) MM.getSearchTime() / (double) nRequest;
+		nRequest = 0;
+		
+		return ans;
 	}
 
 	public String toString() {

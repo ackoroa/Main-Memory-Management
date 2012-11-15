@@ -4,9 +4,25 @@ public abstract class MemoryManager {
 	int M[];
 	int memSize;
 	int holeHead, holeTail;
-	int searchPointer;
+	int searchPointer, holeExamined;
 
 	abstract int request(int n);
+	
+	public double getMemoryUtil(){
+		int p = 0;
+		double totalBlockSize = 0;
+		
+		while(p<memSize){
+			if(M[p] > 0) totalBlockSize += M[p]-2;
+			p = p + Math.abs(M[p]);
+		}
+		
+		return totalBlockSize / (double) memSize;
+	}
+	
+	public int getSearchTime(){
+		return holeExamined;
+	}
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -63,15 +79,15 @@ public abstract class MemoryManager {
 		int newHoleSize = initHoleSize - requestSize;
 
 		int newBlock = currentBlock + requestSize;
-		int nextBlock = M[currentBlock + 1];
-		int prevBlock = M[currentBlock + 2];
+		int nextHole = M[currentBlock + 1];
+		int prevHole = M[currentBlock + 2];
 
 		if (!perfectFit) {
 			// make new hole
 			M[newBlock] = -newHoleSize; // beginningTag
 			M[newBlock + newHoleSize - 1] = -newHoleSize; // endTag
-			M[newBlock + 1] = nextBlock; // next pointer
-			M[newBlock + 2] = prevBlock; // prev pointer
+			M[newBlock + 1] = nextHole; // next pointer
+			M[newBlock + 2] = prevHole; // prev pointer
 
 			// update head and tail
 			if (M[newBlock + 1] == -1)
@@ -79,15 +95,15 @@ public abstract class MemoryManager {
 			if (M[newBlock + 2] == -1)
 				holeHead = newBlock;
 		} else {
-			if ((nextBlock != -1) && (prevBlock != -1)) {
-				M[prevBlock + 1] = nextBlock;
-				M[nextBlock + 2] = prevBlock;
-			} else if ((nextBlock == -1) && (prevBlock != -1)) {
-				M[prevBlock + 1] = -1;
-				holeTail = prevBlock;
-			} else if ((nextBlock != -1) && (prevBlock == -1)) {
-				M[nextBlock + 2] = -1;
-				holeHead = nextBlock;
+			if ((nextHole != -1) && (prevHole != -1)) {
+				M[prevHole + 1] = nextHole;
+				M[nextHole + 2] = prevHole;
+			} else if ((nextHole == -1) && (prevHole != -1)) {
+				M[prevHole + 1] = -1;
+				holeTail = prevHole;
+			} else if ((nextHole != -1) && (prevHole == -1)) {
+				M[nextHole + 2] = -1;
+				holeHead = nextHole;
 			} else {
 				holeHead = -1;
 				holeTail = -1;
