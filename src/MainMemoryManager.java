@@ -1,11 +1,11 @@
-public class MMM {
-	MemoryManager MM;
+public class MainMemoryManager {
+	AbstractMemoryManager MM;
 
 	public enum SearchStrategy {
 		FF, BF, WF
 	}
 
-	public MMM(SearchStrategy ss) {
+	public MainMemoryManager(SearchStrategy ss) {
 		switch (ss) {
 		case FF:
 			MM = new FFManager();
@@ -29,16 +29,16 @@ public class MMM {
 	// return index of first usable word (not tag) or error if insufficient
 	// memory
 	public int request(int n) {
-		int index = MM.request(n + 2);
+		int index = MM.request(n + 3); // add tags to request size
 		if (index < 0)
 			return index;
-		return index + 1;
+		return index + 1; // offset tag
 	}
 
 	// analogous to function free()
 	// releases a previously requested block back to mm
 	public boolean release(int p) {
-		return MM.release(p - 1);
+		return MM.release(p - 1); // offset tag
 	}
 
 	public double getMemUtil() {

@@ -1,4 +1,4 @@
-public class WFManager extends MemoryManager {
+public class WFManager extends AbstractMemoryManager {
 	int request(int n) {
 		int p = holeHead;
 		int worstFitIndex = -1;
@@ -6,7 +6,7 @@ public class WFManager extends MemoryManager {
 
 		holeExamined = 0;
 
-		if ((n < 2) || (p < 0))
+		if ((n < 4) || (p < 0))
 			return -1;
 
 		do {
@@ -18,10 +18,11 @@ public class WFManager extends MemoryManager {
 					worstFitIndex = p;
 				}
 			}
-			p = M[p + 1];
+			p = M[p + 1]; // go to next hole in list
 
-		} while (p != -1);
+		} while (p != -1); // until end of list
 
+		// if a hole that fits is found
 		if (worstFitIndex != -1)
 			allocate(n, worstFitIndex, perfectFit(n, worstFitIndex));
 
